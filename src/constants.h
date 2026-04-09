@@ -1,23 +1,27 @@
+// ============================================
+// Cours : Les bases de C++ - Constantes du jeu
+// Activite : Controle des parametres globaux
+// ============================================
 #pragma once
 
-// Fenêtre
-const int   WIN_W             = 1280;
-const int   WIN_H             = 720;
+// -- Fenetre --
+const int   WIN_W          = 1280;
+const int   WIN_H          = 720;
 
-// Joueur
-const float GROUND_Y          = 580.f;
-const float JUMP_FORCE        = -700.f;
-const float GRAVITY           = 1400.f;
-const float PLAYER_X          = 150.f;
+// -- Joueur --
+const float SOL_Y          = 590.f;   // position du sol
+const float FORCE_SAUT     = -680.f;
+const float GRAVITE        = 1350.f;
+const float JOUEUR_X       = 160.f;
 
-// Obstacles
-const float OBS_SPEED         = 380.f;
-const float OBS_INTERVAL_MIN  = 1.0f;
-const float OBS_INTERVAL_MAX  = 2.5f;
+// -- Obstacles --
+const float VITESSE_OBS    = 370.f;
+const float INTERVALLE_MIN = 1.0f;
+const float INTERVALLE_MAX = 2.4f;
 
-// Jeu
-const float GAME_DURATION     = 60.f;
-const int   MAX_HITS          = 2;
+// -- Jeu --
+const float DUREE_JEU      = 60.f;   // secondes
 
-// Assets
-const char* const FONT_PATH   = "assets/fonts/arial.ttf";
+// -- Chemins assets --
+const char* const CHEMIN_POLICE     = "assets/fonts/arial.ttf";
+const char* const CHEMIN_FOND       = "assets/textures/background.png";

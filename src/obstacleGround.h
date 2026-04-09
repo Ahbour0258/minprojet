@@ -1,16 +1,30 @@
+// ============================================
+// Cours : Classe & Objet + Heritage en C++
+// Activite : Obstacle au sol - Cactus
+// ============================================
 #pragma once
 #include "obstacle.h"
 #include "constants.h"
 
-class ObstacleGround : public Obstacle {
+// Obstacle au sol : Cactus
+// Heritage public de Obstacle
+class ObstacleSol : public Obstacle {
 public:
-    explicit ObstacleGround(float x);
+    // Constructeur - Cours : Constructeur & Destructeur
+    explicit ObstacleSol(float x);
 
-    void          update(float dt)                    override;
-    void          draw(sf::RenderWindow& win)  const  override;
-    sf::FloatRect getBounds()                  const  override;
-    std::string   getType()                    const  override { return "ground"; }
+    // Surcharge des methodes virtuelles
+    void          deplacer(float dt)                override;
+    void          afficher(sf::RenderWindow& fen)
+                                             const  override;
+    sf::FloatRect getBornes()                const  override;
+    std::string   getType()                  const  override {
+        return "sol";
+    }
 
 private:
-    sf::RectangleShape _shape;
+    // Encapsulation - attributs prives
+    sf::RectangleShape _corps;    // corps du cactus
+    sf::RectangleShape _bras1;    // bras gauche
+    sf::RectangleShape _bras2;    // bras droit
 };

@@ -1,261 +1,350 @@
+// ============================================
+// Cours : Tous les concepts C++ du module
+// Activite : Implementation du gestionnaire
+// ============================================
 #include "gameManager.h"
 #include "obstacleGround.h"
 #include "obstacleAir.h"
 #include <cstdlib>
 #include <ctime>
 #include <cmath>
-#include <stdexcept>
+#include <stdexcept>   // gestion des exceptions
 #include <iostream>
+#include <string>      // chaines de caracteres
 
-GameManager::GameManager()
-    : _window(sf::VideoMode(WIN_W, WIN_H), "Hide & Run"),
-      _menu(_font),
-      _state(GameState::Menu),
-      _timer(GAME_DURATION),
-      _spawnTimer(0.f),
-      _nextSpawnIn(1.5f),
-      _bgOffset(0.f)
+// Constructeur - cours Constructeur & Destructeur
+GestionnaireJeu::GestionnaireJeu()
+    : _fenetre(sf::VideoMode(WIN_W, WIN_H), "Hide & Run"),
+      _menu(_police),
+      _etatJeu(EtatJeu::Menu),
+      _chrono(DUREE_JEU),
+      _timerSpawn(0.f),
+      _prochainSpawn(1.5f),
+      _offsetFond(0.f)
 {
-    _window.setFramerateLimit(60);
+    _fenetre.setFramerateLimit(60);
     std::srand(static_cast<unsigned>(std::time(nullptr)));
 
+    // Gestion des exceptions - cours bases C++
     try {
-        if (!_font.loadFromFile(FONT_PATH))
+        if (!_police.loadFromFile(CHEMIN_POLICE))
             throw std::runtime_error(
-                std::string("Impossible de charger : ") + FONT_PATH);
+                std::string("Police introuvable : ") + CHEMIN_POLICE
+            );
+        if (!_textureFond.loadFromFile(CHEMIN_FOND))
+            throw std::runtime_error(
+                std::string("Fond introuvable : ") + CHEMIN_FOND
+            );
     } catch (const std::exception& e) {
         std::cerr << "[ERREUR] " << e.what() << std::endl;
     }
 
-    _menu = Menu(_font);
+    // Configuration du fond scrollant (double sprite)
+    _textureFond.setRepeated(false);
+    _fond.setTexture(_textureFond);
+    _fond.setScale(
+        (float)WIN_W / _textureFond.getSize().x,
+        (float)WIN_H / _textureFond.getSize().y
+    );
+    _fond2 = _fond;
+    _fond2.setPosition((float)WIN_W, 0.f);
 
-    _txtTimer.setFont(_font);
-    _txtTimer.setCharacterSize(28);
-    _txtTimer.setFillColor(sf::Color::White);
-    _txtTimer.setPosition(WIN_W / 2.f - 60.f, 16.f);
+    // Reinitialiser menu avec police chargee
+    _menu = Menu(_police);
 
-    _txtMessage.setFont(_font);
-    _txtMessage.setCharacterSize(48);
-    _txtMessage.setPosition(WIN_W / 2.f - 250.f, WIN_H / 2.f - 60.f);
+    // Texte chrono
+    _txtChrono.setFont(_police);
+    _txtChrono.setCharacterSize(30);
+    _txtChrono.setFillColor(sf::Color::White);
+    _txtChrono.setPosition(WIN_W / 2.f - 70.f, 14.f);
 
-    _ground.setSize({(float)WIN_W, 20.f});
-    _ground.setPosition(0.f, GROUND_Y);
-    _ground.setFillColor(sf::Color(60, 60, 80));
+    // Texte etat joueur
+    _txtEtat.setFont(_police);
+    _txtEtat.setCharacterSize(24);
+    _txtEtat.setPosition(18.f, 14.f);
 
-    _progressBar.setSize({(float)WIN_W - 40.f, 14.f});
-    _progressBar.setPosition(20.f, WIN_H - 24.f);
-    _progressBar.setFillColor(sf::Color(40, 40, 60));
+    // Texte message final
+    _txtMessage.setFont(_police);
+    _txtMessage.setCharacterSize(52);
+    _txtMessage.setStyle(sf::Text::Bold);
 
-    _progressFill.setSize({0.f, 14.f});
-    _progressFill.setPosition(20.f, WIN_H - 24.f);
-    _progressFill.setFillColor(sf::Color(70, 200, 100));
+    // Sol
+    _sol.setSize({(float)WIN_W, 18.f});
+    _sol.setPosition(0.f, SOL_Y);
+    _sol.setFillColor(sf::Color(40, 80, 20, 180));
+
+    // Barre de progres
+    _barreProgres.setSize({(float)WIN_W - 40.f, 12.f});
+    _barreProgres.setPosition(20.f, WIN_H - 20.f);
+    _barreProgres.setFillColor(sf::Color(0, 0, 0, 150));
+
+    _remplissage.setSize({0.f, 12.f});
+    _remplissage.setPosition(20.f, WIN_H - 20.f);
+    _remplissage.setFillColor(sf::Color(50, 200, 80));
 }
 
-void GameManager::run() {
-    sf::Clock clock;
-    while (_window.isOpen()) {
-        float dt = clock.restart().asSeconds();
-        _processEvents();
-        if (_state == GameState::Playing)
-            _update(dt);
-        _render();
+// Destructeur
+GestionnaireJeu::~GestionnaireJeu() {
+    // Les unique_ptr liberent automatiquement la memoire
+    // Cours : Pointeurs et gestion memoire
+}
+
+// Boucle principale du jeu
+void GestionnaireJeu::lancer() {
+    sf::Clock horloge;  // Cours : bases C++ - sf::Clock
+
+    while (_fenetre.isOpen()) {
+        float dt = horloge.restart().asSeconds();
+        _gererEvenements();
+        if (_etatJeu == EtatJeu::EnJeu)
+            _mettreAJour(dt);
+        _afficher();
     }
 }
 
-void GameManager::_resetGame() {
-    _player      = Player();
-    _obstacles.clear();
-    _timer       = GAME_DURATION;
-    _spawnTimer  = 0.f;
-    _nextSpawnIn = 1.5f;
-    _bgOffset    = 0.f;
-    _state       = GameState::Playing;
+// Reinitialisation complete du jeu
+void GestionnaireJeu::_reinitialiser() {
+    _joueur       = Joueur();
+    _obstacles.clear();  // STL - vider le vecteur
+    _chrono       = DUREE_JEU;
+    _timerSpawn   = 0.f;
+    _prochainSpawn = 1.5f;
+    _offsetFond   = 0.f;
+    _etatJeu      = EtatJeu::EnJeu;
 }
 
-void GameManager::_processEvents() {
+// Gestion des evenements
+void GestionnaireJeu::_gererEvenements() {
     sf::Event event;
-    while (_window.pollEvent(event)) {
+    while (_fenetre.pollEvent(event)) {
         if (event.type == sf::Event::Closed)
-            _window.close();
+            _fenetre.close();
 
-        if (_state == GameState::Menu) {
-            _menu.handleInput(event);
-            MenuChoice c = _menu.getChoice();
-            if (c == MenuChoice::Play)  { _menu.resetChoice(); _resetGame(); }
-            if (c == MenuChoice::Quit)    _window.close();
+        if (_etatJeu == EtatJeu::Menu) {
+            _menu.gererEntree(event);
+            ChoixMenu c = _menu.getChoix();
+            if (c == ChoixMenu::Jouer)   {
+                _menu.resetChoix();
+                _reinitialiser();
+            }
+            if (c == ChoixMenu::Quitter) _fenetre.close();
         }
-        else if (_state == GameState::Playing) {
-            _player.handleInput(event);
+        else if (_etatJeu == EtatJeu::EnJeu) {
+            _joueur.gererEntree(event);
         }
         else {
+            // Retour menu apres game over / victoire
             if (event.type == sf::Event::KeyPressed &&
                 event.key.code == sf::Keyboard::Space)
-                _state = GameState::Menu;
+                _etatJeu = EtatJeu::Menu;
         }
     }
 }
 
-void GameManager::_update(float dt) {
-    _bgOffset -= 200.f * dt;
-    _player.update(dt);
+// Mise a jour logique
+void GestionnaireJeu::_mettreAJour(float dt) {
+    // Scrolling du fond
+    _offsetFond -= 220.f * dt;
+    if (_offsetFond <= -(float)WIN_W)
+        _offsetFond = 0.f;
 
-    _timer -= dt;
-    if (_timer <= 0.f) { _timer = 0.f; _state = GameState::GameOver; return; }
-    if (_timer <= 0.5f) { _state = GameState::Victory; return; }
+    _fond.setPosition(_offsetFond, 0.f);
+    _fond2.setPosition(_offsetFond + WIN_W, 0.f);
 
-    _spawnTimer += dt;
-    if (_spawnTimer >= _nextSpawnIn) {
-        _spawnTimer  = 0.f;
-        _nextSpawnIn = _randomFloat(OBS_INTERVAL_MIN, OBS_INTERVAL_MAX);
-        _spawnObstacle();
+    // Mise a jour joueur
+    _joueur.mettreAJour(dt);
+
+    // Chronometre degressif
+    _chrono -= dt;
+    if (_chrono <= 0.f) {
+        _chrono  = 0.f;
+        _etatJeu = EtatJeu::GameOver;
+        return;
+    }
+    if (_chrono <= 0.5f) {
+        _etatJeu = EtatJeu::Victoire;
+        return;
     }
 
-    for (auto& obs : _obstacles) obs->update(dt);
+    // Spawn d'obstacles - STL vector
+    _timerSpawn += dt;
+    if (_timerSpawn >= _prochainSpawn) {
+        _timerSpawn    = 0.f;
+        _prochainSpawn = _aleatoire(
+            INTERVALLE_MIN, INTERVALLE_MAX
+        );
+        _genererObstacle();
+    }
 
+    // Mise a jour obstacles - boucle sur vecteur STL
+    for (auto& obs : _obstacles)
+        obs->deplacer(dt);
+
+    // Supprimer obstacles hors ecran
+    // Cours : STL - algorithmes
     _obstacles.erase(
-        std::remove_if(_obstacles.begin(), _obstacles.end(),
-            [](const std::unique_ptr<Obstacle>& o){
-                return o->isOffScreen();
-            }),
+        std::remove_if(
+            _obstacles.begin(),
+            _obstacles.end(),
+            [](const std::unique_ptr<Obstacle>& o) {
+                return o->horsEcran();
+            }
+        ),
         _obstacles.end()
     );
 
-    _checkCollisions();
+    _verifierCollisions();
 
-    if (_player.isDead()) _state = GameState::GameOver;
+    if (_joueur.estMort())
+        _etatJeu = EtatJeu::GameOver;
 
-    float prog = 1.f - (_timer / GAME_DURATION);
-    _progressFill.setSize({(WIN_W - 40.f) * prog, 14.f});
+    // Barre de progres
+    float progres = 1.f - (_chrono / DUREE_JEU);
+    _remplissage.setSize({(WIN_W - 40.f) * progres, 12.f});
 }
 
-void GameManager::_spawnObstacle() {
+// Generation d'obstacles aleatoires
+// Cours : Pointeurs - new / unique_ptr
+void GestionnaireJeu::_genererObstacle() {
     float x = WIN_W + 60.f;
+    // Polymorphisme - cours Heritage
     if (std::rand() % 2 == 0)
-        _obstacles.push_back(std::make_unique<ObstacleGround>(x));
+        _obstacles.push_back(
+            std::make_unique<ObstacleSol>(x)
+        );
     else
-        _obstacles.push_back(std::make_unique<ObstacleAir>(x));
+        _obstacles.push_back(
+            std::make_unique<ObstacleAir>(x)
+        );
 }
 
-void GameManager::_checkCollisions() {
-    for (auto& obs : _obstacles) {
-        if (_player.getBounds().intersects(obs->getBounds())) {
-            _player.hit();
+// Verification des collisions
+// Cours : Transmission d'objet en argument
+void GestionnaireJeu::_verifierCollisions() {
+    for (const auto& obs : _obstacles) {
+        if (_joueur.getBornes().intersects(obs->getBornes())) {
+            _joueur.recevoirChoc();
             break;
         }
     }
 }
 
-void GameManager::_drawBackground() {
-    _window.clear(sf::Color(20, 20, 40));
-
-    for (int i = 0; i < 10; i++) {
-        float x = std::fmod(_bgOffset + i * 130.f, WIN_W + 130.f);
-        if (x < 0) x += WIN_W + 130.f;
-        sf::RectangleShape line({2.f, 60.f});
-        line.setPosition(x, GROUND_Y - 80.f);
-        line.setFillColor(sf::Color(40, 40, 70));
-        _window.draw(line);
-    }
-
-    sf::RectangleShape bunker({80.f, 80.f});
-    bunker.setPosition(WIN_W - 120.f, GROUND_Y - 80.f);
-    bunker.setFillColor(sf::Color(60, 60, 60));
-    bunker.setOutlineColor(sf::Color(100, 200, 100));
-    bunker.setOutlineThickness(3.f);
-    _window.draw(bunker);
-
-    sf::Text txtBunker;
-    txtBunker.setFont(_font);
-    txtBunker.setString("BUNKER");
-    txtBunker.setCharacterSize(14);
-    txtBunker.setFillColor(sf::Color(100, 255, 100));
-    txtBunker.setPosition(WIN_W - 118.f, GROUND_Y - 95.f);
-    _window.draw(txtBunker);
+// Dessin du fond scrollant
+void GestionnaireJeu::_dessinerFond() {
+    _fenetre.draw(_fond);
+    _fenetre.draw(_fond2);
 }
 
-void GameManager::_drawHUD() {
-    int sec = static_cast<int>(_timer);
-    _txtTimer.setString("Temps : " + std::to_string(sec) + "s");
-    _txtTimer.setFillColor(sec <= 10 ? sf::Color::Red : sf::Color::White);
-    _window.draw(_txtTimer);
+// Affichage HUD
+void GestionnaireJeu::_afficherHUD() {
+    // Chrono
+    int sec = static_cast<int>(_chrono);
+    _txtChrono.setString("Temps : " + std::to_string(sec) + "s");
+    _txtChrono.setFillColor(
+        sec <= 10 ? sf::Color::Red : sf::Color::White
+    );
+    _fenetre.draw(_txtChrono);
 
-    sf::Text txtState;
-    txtState.setFont(_font);
-    txtState.setCharacterSize(22);
-    txtState.setPosition(20.f, 16.f);
-
-    switch (_player.getState()) {
-        case PlayerState::Alive:
-            txtState.setString("Etat : VIVANT");
-            txtState.setFillColor(sf::Color(100, 255, 100));
+    // Etat du joueur
+    switch (_joueur.getEtat()) {
+        case EtatJoueur::Vivant:
+            _txtEtat.setString("Etat : VIVANT");
+            _txtEtat.setFillColor(sf::Color(80, 255, 80));
             break;
-        case PlayerState::Injured:
-            txtState.setString("Etat : BLESSE");
-            txtState.setFillColor(sf::Color(255, 165, 0));
+        case EtatJoueur::Blesse:
+            _txtEtat.setString("Etat : BLESSE");
+            _txtEtat.setFillColor(sf::Color(255, 165, 0));
             break;
-        case PlayerState::Dead:
-            txtState.setString("Etat : MORT");
-            txtState.setFillColor(sf::Color::Red);
+        case EtatJoueur::Mort:
+            _txtEtat.setString("Etat : MORT");
+            _txtEtat.setFillColor(sf::Color::Red);
             break;
     }
-    _window.draw(txtState);
+    _fenetre.draw(_txtEtat);
 
-    _window.draw(_progressBar);
-    _window.draw(_progressFill);
+    // Barre de progression
+    _fenetre.draw(_barreProgres);
+    _fenetre.draw(_remplissage);
 
-    sf::Text txtProg;
-    txtProg.setFont(_font);
-    txtProg.setString("Bunker");
-    txtProg.setCharacterSize(13);
-    txtProg.setFillColor(sf::Color(100, 200, 100));
-    txtProg.setPosition(WIN_W - 70.f, WIN_H - 26.f);
-    _window.draw(txtProg);
+    // Label bunker
+    sf::Text lblBunker;
+    lblBunker.setFont(_police);
+    lblBunker.setString("BUNKER");
+    lblBunker.setCharacterSize(13);
+    lblBunker.setFillColor(sf::Color(80, 220, 80));
+    lblBunker.setPosition(WIN_W - 72.f, WIN_H - 22.f);
+    _fenetre.draw(lblBunker);
 }
 
-void GameManager::_render() {
-    _drawBackground();
+// Rendu complet
+void GestionnaireJeu::_afficher() {
+    _fenetre.clear(sf::Color(135, 206, 235));
 
-    if (_state == GameState::Menu) {
-        _menu.draw(_window);
+    if (_etatJeu == EtatJeu::Menu) {
+        _dessinerFond();
+        _menu.afficher(_fenetre);
     }
-    else if (_state == GameState::Playing) {
-        _window.draw(_ground);
-        for (auto& obs : _obstacles) obs->draw(_window);
-        _player.draw(_window);
-        _drawHUD();
+    else if (_etatJeu == EtatJeu::EnJeu) {
+        _dessinerFond();
+        _fenetre.draw(_sol);
+        for (auto& obs : _obstacles)
+            obs->afficher(_fenetre);
+        _joueur.afficher(_fenetre);
+        _afficherHUD();
     }
     else {
-        _window.draw(_ground);
-        for (auto& obs : _obstacles) obs->draw(_window);
-        _player.draw(_window);
-        _drawHUD();
+        _dessinerFond();
+        _fenetre.draw(_sol);
+        for (auto& obs : _obstacles)
+            obs->afficher(_fenetre);
+        _joueur.afficher(_fenetre);
+        _afficherHUD();
 
-        sf::RectangleShape overlay({(float)WIN_W, (float)WIN_H});
-        overlay.setFillColor(sf::Color(0, 0, 0, 160));
-        _window.draw(overlay);
+        // Overlay sombre
+        sf::RectangleShape overlay(
+            {(float)WIN_W, (float)WIN_H}
+        );
+        overlay.setFillColor(sf::Color(0, 0, 0, 150));
+        _fenetre.draw(overlay);
 
-        if (_state == GameState::GameOver) {
+        // Message final
+        if (_etatJeu == EtatJeu::GameOver) {
             _txtMessage.setString("GAME OVER !");
             _txtMessage.setFillColor(sf::Color::Red);
+            _txtMessage.setPosition(
+                WIN_W / 2.f - 230.f,
+                WIN_H / 2.f - 60.f
+            );
         } else {
             _txtMessage.setString("VICTOIRE !");
-            _txtMessage.setFillColor(sf::Color(100, 255, 100));
+            _txtMessage.setFillColor(
+                sf::Color(80, 255, 80)
+            );
+            _txtMessage.setPosition(
+                WIN_W / 2.f - 190.f,
+                WIN_H / 2.f - 60.f
+            );
         }
-        _window.draw(_txtMessage);
+        _fenetre.draw(_txtMessage);
 
-        sf::Text hint;
-        hint.setFont(_font);
-        hint.setString("Appuyez sur ESPACE pour revenir au menu");
-        hint.setCharacterSize(22);
-        hint.setFillColor(sf::Color(200, 200, 200));
-        hint.setPosition(WIN_W / 2.f - 280.f, WIN_H / 2.f + 40.f);
-        _window.draw(hint);
+        sf::Text aide;
+        aide.setFont(_police);
+        aide.setString("Appuyez sur ESPACE pour revenir au menu");
+        aide.setCharacterSize(24);
+        aide.setFillColor(sf::Color(200, 200, 200));
+        aide.setPosition(
+            WIN_W / 2.f - 290.f,
+            WIN_H / 2.f + 40.f
+        );
+        _fenetre.draw(aide);
     }
 
-    _window.display();
+    _fenetre.display();
 }
 
-float GameManager::_randomFloat(float min, float max) {
+// Fonction generatrice de nombre aleatoire
+// Cours : Fonctions en C++
+float GestionnaireJeu::_aleatoire(float min, float max) {
     return min + static_cast<float>(std::rand()) /
            (static_cast<float>(RAND_MAX / (max - min)));
 }
