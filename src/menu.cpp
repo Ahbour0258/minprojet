@@ -1,21 +1,17 @@
-// ============================================
-// Cours : Constructeur & Destructeur
-// Cours : Chaînes de caracteres en C++
-// ============================================
 #include "menu.h"
 
 Menu::Menu(sf::Font& police)
-    : _selection(0),
-      _choix(ChoixMenu::Rien),
-      _afficherAPropos(false)
+    :selection(0),
+    choix(ChoixMenu::Rien),
+    afficherAPropos(false)
 {
     // Titre du jeu
-    _titre.setFont(police);
-    _titre.setString("HIDE & RUN");
-    _titre.setCharacterSize(72);
-    _titre.setFillColor(sf::Color(70, 170, 255));
-    _titre.setStyle(sf::Text::Bold);
-    _titre.setPosition(420.f, 100.f);
+    titre.setFont(police);
+    titre.setString("HIDE & RUN");
+    titre.setCharacterSize(72);
+    titre.setFillColor(sf::Color(70, 170, 255));
+    titre.setStyle(sf::Text::Bold);
+    titre.setPosition(420.f, 100.f);
 
     // Items du menu - tableau de chaines
     // Cours : Chaines de caracteres & Tableaux
@@ -26,18 +22,18 @@ Menu::Menu(sf::Font& police)
     };
 
     for (int i = 0; i < 3; i++) {
-        _items[i].setFont(police);
-        _items[i].setString(libelles[i]);
-        _items[i].setCharacterSize(40);
-        _items[i].setPosition(560.f, 270.f + i * 80.f);
+        items[i].setFont(police);
+        items[i].setString(libelles[i]);
+        items[i].setCharacterSize(40);
+        items[i].setPosition(560.f, 270.f + i * 80.f);
     }
 
     // Texte A propos
-    _txtAPropos.setFont(police);
-    _txtAPropos.setCharacterSize(26);
-    _txtAPropos.setFillColor(sf::Color::White);
-    _txtAPropos.setPosition(180.f, 160.f);
-    _txtAPropos.setString(
+    txtAPropos.setFont(police);
+    txtAPropos.setCharacterSize(26);
+    txtAPropos.setFillColor(sf::Color::White);
+    txtAPropos.setPosition(180.f, 160.f);
+    txtAPropos.setString(
         "=== HIDE & RUN ===\n\n"
         "Courez vers le bunker avant la fin du temps !\n\n"
         "Commandes :\n"
@@ -52,46 +48,46 @@ Menu::Menu(sf::Font& police)
         "  Echap : Retour au menu"
     );
 
-    _mettreAJourCouleurs();
+    mettreAJourCouleurs();
 }
 
 void Menu::gererEntree(const sf::Event& event) {
-    if (_afficherAPropos) {
+    if (afficherAPropos) {
         if (event.type == sf::Event::KeyPressed &&
             event.key.code == sf::Keyboard::Escape)
-            _afficherAPropos = false;
+            afficherAPropos = false;
         return;
     }
 
     if (event.type == sf::Event::KeyPressed) {
         if (event.key.code == sf::Keyboard::Up)
-            _selection = (_selection + 2) % 3;
+            selection = (selection + 2) % 3;
         if (event.key.code == sf::Keyboard::Down)
-            _selection = (_selection + 1) % 3;
+            selection = (selection + 1) % 3;
         if (event.key.code == sf::Keyboard::Return ||
             event.key.code == sf::Keyboard::Space) {
-            if (_selection == 0) _choix = ChoixMenu::Jouer;
-            if (_selection == 1) _afficherAPropos = true;
-            if (_selection == 2) _choix = ChoixMenu::Quitter;
+            if (selection == 0) choix = ChoixMenu::Jouer;
+            if (selection == 1) afficherAPropos = true;
+            if (selection == 2) choix = ChoixMenu::Quitter;
         }
     }
-    _mettreAJourCouleurs();
+    mettreAJourCouleurs();
 }
 
 void Menu::afficher(sf::RenderWindow& fen) const {
-    fen.draw(_titre);
-    if (_afficherAPropos) {
-        fen.draw(_txtAPropos);
+    fen.draw(titre);
+    if (afficherAPropos) {
+        fen.draw(txtAPropos);
         return;
     }
     for (int i = 0; i < 3; i++)
-        fen.draw(_items[i]);
+        fen.draw(items[i]);
 }
 
-void Menu::_mettreAJourCouleurs() {
+void Menu::mettreAJourCouleurs() {
     for (int i = 0; i < 3; i++)
-        _items[i].setFillColor(
-            i == _selection
+        items[i].setFillColor(
+            i == selection
             ? sf::Color(70, 170, 255)
             : sf::Color(210, 210, 210)
         );

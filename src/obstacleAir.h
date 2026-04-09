@@ -1,7 +1,3 @@
-// ============================================
-// Cours : Heritage & Polymorphisme
-// Activite : Obstacle en l'air - Oiseau
-// ============================================
 #pragma once
 #include "obstacle.h"
 #include "constants.h"
@@ -10,19 +6,18 @@
 class ObstacleAir : public Obstacle {
 public:
     explicit ObstacleAir(float x);
-
-    void          deplacer(float dt)                override;
-    void          afficher(sf::RenderWindow& fen)
-                                             const  override;
-    sf::FloatRect getBornes()                const  override;
-    std::string   getType()                  const  override {
+    void deplacer(float dt) override;
+    void afficher(sf::RenderWindow& fen)
+    const override;
+    sf::FloatRect getBornes() const override;
+    std::string getType() const override {
         return "air";
     }
 
 private:
-    sf::CircleShape    _corps;     // corps de l'oiseau
-    sf::ConvexShape    _aile1;     // aile gauche
-    sf::ConvexShape    _aile2;     // aile droite
-    float              _tempsVol;  // pour animation ailes
-    float              _baseY;     // position Y de base
+    sf::CircleShape corps;     // corps de l'oiseau
+    sf::ConvexShape aile1;     // aile gauche
+    sf::ConvexShape aile2;     // aile droite
+    float tempsVol;  // pour animation ailes
+    float baseY;     // position Y de base
 };

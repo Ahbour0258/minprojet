@@ -1,8 +1,3 @@
-// ============================================
-// Cours : Les bases de C++ - Point d'entree
-// Cours : Gestion des exceptions try/catch
-// Mini Projet C++ - Hide & Run
-// ============================================
 #include "gameManager.h"
 #include <iostream>
 #include <stdexcept>

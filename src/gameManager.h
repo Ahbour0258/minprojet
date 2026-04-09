@@ -1,8 +1,3 @@
-// ============================================
-// Cours : Les Tableaux & la Bibliotheque STL
-// Cours : Fonctions amies & Patrons en C++
-// Activite : Gestionnaire principal du jeu
-// ============================================
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <vector>        // STL - cours Tableaux & STL
@@ -24,47 +19,47 @@ public:
 
 private:
     // -- Agregation SFML --
-    sf::RenderWindow  _fenetre;
-    sf::Font          _police;
-    sf::Texture       _textureFond;
-    sf::Sprite        _fond;
-    sf::Sprite        _fond2;     // double fond pour scrolling
+    sf::RenderWindow fenetre;
+    sf::Font police;
+    sf::Texture textureFond;
+    sf::Sprite fond;
+    sf::Sprite fond2;     // double fond pour scrolling
 
     // -- Textes HUD --
-    sf::Text          _txtChrono;
-    sf::Text          _txtEtat;
-    sf::Text          _txtMessage;
+    sf::Text txtChrono;
+    sf::Text txtEtat;
+    sf::Text txtMessage;
 
     // -- Formes --
-    sf::RectangleShape _sol;
-    sf::RectangleShape _barreProgres;
-    sf::RectangleShape _remplissage;
+    sf::RectangleShape sol;
+    sf::RectangleShape barreProgres;
+    sf::RectangleShape remplissage;
 
     // -- Objets du jeu --
     // Cours : Agregation
-    Joueur            _joueur;
+    Joueur joueur;
     // STL vector + pointeurs - cours STL & Pointeurs
-    std::vector<std::unique_ptr<Obstacle>> _obstacles;
-    Menu              _menu;
-    EtatJeu           _etatJeu;
+    std::vector<std::unique_ptr<Obstacle>> obstacles;
+    Menu menu;
+    EtatJeu etatJeu;
 
     // -- Variables --
-    float _chrono;
-    float _timerSpawn;
-    float _prochainSpawn;
-    float _offsetFond;
+    float chrono;
+    float timerSpawn;
+    float prochainSpawn;
+    float offsetFond;
 
     // -- Methodes privees --
-    void _gererEvenements();
-    void _mettreAJour(float dt);
-    void _afficher();
-    void _genererObstacle();
-    void _verifierCollisions();
-    void _afficherHUD();
-    void _dessinerFond();
-    void _reinitialiser();
+    void gererEvenements();
+    void mettreAJour(float dt);
+    void afficher();
+    void genererObstacle();
+    void verifierCollisions();
+    void afficherHUD();
+    void dessinerFond();
+    void reinitialiser();
 
     // Patron de fonction - cours Patrons
     // Cours : Fonctions, Pointeur et Reference
-    float _aleatoire(float min, float max);
+    float aleatoire(float min, float max);
 };

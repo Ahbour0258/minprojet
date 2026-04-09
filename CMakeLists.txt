@@ -3,6 +3,10 @@ project(HideAndRun)
 
 set(CMAKE_CXX_STANDARD 17)
 
+# Chemin SFML + mode dynamique (obligatoire avec openal32.dll)
+set(SFML_DIR "C:/SFML-GCC/lib/cmake/SFML")
+set(SFML_STATIC_LIBRARIES FALSE)
+
 # Trouver SFML
 find_package(SFML 2.5 COMPONENTS graphics window system audio REQUIRED)
 
@@ -10,7 +14,7 @@ find_package(SFML 2.5 COMPONENTS graphics window system audio REQUIRED)
 add_executable(HideAndRun
     src/main.cpp
     src/gameManager.cpp
-    src/player.cpp         # IMPORTANT : doit être présent
+    src/player.cpp
     src/menu.cpp
     src/obstacle.cpp
     src/obstacleAir.cpp
@@ -18,4 +22,12 @@ add_executable(HideAndRun
 )
 
 # Lier les bibliothèques SFML
-target_link_libraries(HideAndRun sfml-graphics sfml-window sfml-system sfml-audio)
+target_link_libraries(HideAndRun 
+    sfml-graphics 
+    sfml-window 
+    sfml-system 
+    sfml-audio
+    opengl32
+    winmm
+    gdi32
+)
