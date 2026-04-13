@@ -1,19 +1,19 @@
 #pragma once
 
-// -- Fenetre --
-const int   WIN_W = 1280;
-const int   WIN_H = 720;
-// -- Joueur --
-const float SOL_Y = 590.f;   // position du sol
+// Fenetre
+const int LARG_WIN = 1280;
+const int HAUT_WIN= 720;
+// Joueur
+const float POS_SOL = 590.f;
 const float FORCE_SAUT = -680.f;
 const float GRAVITE = 1350.f;
-const float JOUEUR_X = 160.f;
-// -- Obstacles --
+const float POS_X_JOUEUR = 160.f;
+// Obstacles
 const float VITESSE_OBS = 370.f;
-const float INTERVALLE_MIN = 1.0f;
-const float INTERVALLE_MAX = 2.4f;
-// -- Jeu --
-const float DUREE_JEU= 60.f;   // secondes
-// -- Chemins assets --
-const char* const CHEMIN_POLICE ="assets/fonts/arial.ttf";
-const char* const CHEMIN_FOND = "assets/textures/background.jpg";
+const float DELAI_MIN = 1.0f;
+const float DELAI_MAX = 2.4f;
+// Jeu
+const float TEMPS_JEU = 60.f;
+// Assets
+const char* const POLICE_PATH = "assets/fonts/arial.ttf"; //le police d'écriture
+const char* const FOND_PATH= "assets/textures/background.png"; //l'image background de notre jeu

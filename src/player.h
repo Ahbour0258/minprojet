@@ -2,46 +2,49 @@
 #include <SFML/Graphics.hpp>
 #include "constants.h"
 
-// Etats possibles du joueur
-// Cours : Les bases de C++ - enum class
 enum class EtatJoueur { Vivant, Blesse, Mort };
 
+// Joueur style Minecraft : corps en blocs carres
 class Joueur {
-public:
-    // Constructeur & Destructeur
+  public:
     Joueur();
     ~Joueur() = default;
 
-    // Methodes publiques
-    void gererEntree(const sf::Event& event);
-    void mettreAJour(float dt);
-    void afficher(sf::RenderWindow& fen) const;
+     void gererEntree(const sf::Event& ev);
+     void mettreAJour(float dt);
+     void afficher(sf::RenderWindow& fen) const;
 
-    // Getters - encapsulation
-    sf::FloatRect getBornes() const;
-    EtatJoueur getEtat() const { return etat; }
-    bool estMort() const {
-        return etat == EtatJoueur::Mort;
-    }
+     sf::FloatRect getBornes() const;
+     EtatJoueur getEtat() const {
+         return etat; }
+     bool estMort() const {
+         return etat == EtatJoueur::Mort; }
+     void recevoirChoc();
 
-    // Gestion des chocs
-    void recevoirChoc();
+ private:
+    // Corps style Minecraft (blocs carres)
+    sf::RectangleShape tete;       // bloc tete
+    sf::RectangleShape corps;      // bloc corps
+    sf::RectangleShape brasDroit;  // bloc bras droit
+    sf::RectangleShape brasGauche; // bloc bras gauche
+    sf::RectangleShape jambeD;     // bloc jambe droite
+    sf::RectangleShape jambeG;     // bloc jambe gauche
 
-private:
-    // Attributs prives - encapsulation
-    sf::RectangleShape corps;      // corps du personnage
-    sf::CircleShape tete;       // tete
-    sf::RectangleShape jambe1;     // jambe gauche
-    sf::RectangleShape jambe2;     // jambe droite
+    // Details du visage (pixel art)
+    sf::RectangleShape oeilG;      // oeil gauche
+    sf::RectangleShape oeilD;      // oeil droit
+    sf::RectangleShape bouche;     // sourire
+    // Cheveux (bloc sur la tete)
+    sf::RectangleShape cheveux;
     sf::Vector2f vitesse;
     EtatJoueur etat;
-    float timerInv;   // timer invincibilite
+    float timerInv;
     bool surSol;
     bool accroupi;
-    int frameAnim;  // frame animation course
+    int frameAnim;
 
-    // Methodes privees
     void sauter();
     void sAccroupir(bool actif);
-    void mettreAJourCouleur();
+    void majCouleur();
+    void majPositions(float baseY);
 };
