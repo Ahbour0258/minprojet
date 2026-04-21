@@ -2,7 +2,7 @@
 #include "obstacle.h"
 #include "constants.h"
 
-// Obstacle en l'air : Oiseau (code original)
+//Obstacle en l'air (oiseau)
 class ObstacleAir : public Obstacle {
 public:
     explicit ObstacleAir(float x);

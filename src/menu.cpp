@@ -5,14 +5,14 @@ Menu::Menu(sf::Font& police)
       choix(ChoixMenu::Rien),
       afficherAPropos(false)
 {
-    // Fond du titre
+    //Fond du titre
     fondTitre.setSize({ 420.f, 78.f });
     fondTitre.setPosition(430.f, 88.f);
     fondTitre.setFillColor(sf::Color(20, 20, 50, 210));
     fondTitre.setOutlineColor(sf::Color(219, 92, 143));
     fondTitre.setOutlineThickness(2.f);
 
-    // Titre
+    //Titre
     titre.setFont(police);
     titre.setString("JEU CACHETTE");
     titre.setCharacterSize(40);
@@ -20,12 +20,12 @@ Menu::Menu(sf::Font& police)
     titre.setStyle(sf::Text::Bold);
     titre.setPosition(470.f, 96.f);
 
-    // Ligne decorative
+
     ligne.setSize({420.f, 3.f });
     ligne.setPosition(430.f, 170.f);
     ligne.setFillColor(sf::Color(219, 92, 143));
 
-    // Items
+    //Items
     const std::string libelles[3] = {"Jouer", "A propos", "Quitter" };
     for (int i = 0; i < 3; i++) {
         fondsItems[i].setSize({ 260.f, 54.f });
@@ -38,13 +38,13 @@ Menu::Menu(sf::Font& police)
         items[i].setPosition(560.f, 218.f + i * 76.f);
     }
 
-    // Texte A propos
+    //Texte A propos
     txtAPropos.setFont(police);
     txtAPropos.setCharacterSize(24);
     txtAPropos.setFillColor(sf::Color::White);
     txtAPropos.setPosition(180.f, 140.f);
     txtAPropos.setString(
-        "****** JEU CACHETTE ******\n\n"
+        "******* JEU CACHETTE ******\n\n"
         "Commandes :\n"
         "  Fleche Haut : Sauter\n"
         "  Fleche Bas  : S'accroupir\n\n"

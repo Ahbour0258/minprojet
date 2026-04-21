@@ -12,10 +12,10 @@ class Menu {
     void gererEntree(const sf::Event& event);
     void afficher(sf::RenderWindow& fen) const;
     ChoixMenu getChoix() const { return choix; }
-    void resetChoix(){ choix = ChoixMenu::Rien; } //met à jour l’état du menu 
+    void resetChoix(){ choix = ChoixMenu::Rien; } //Met à jour l’état du menu 
  
  private:
-      sf::Text titre; //titre affichee dans le menu
+      sf::Text titre; //Titre affiché dans le menu
       sf::Text items[3];
       sf::Text txtAPropos;
       sf::RectangleShape fondsItems[3];

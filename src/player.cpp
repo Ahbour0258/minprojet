@@ -1,7 +1,6 @@
 #include "player.h"
 
-// Les dimensions du personnage style Minecraft
-// Tout est en blocs carres comme dans le jeu
+
 static const float TAILLE_TETE = 28.f;
 static const float LARG_CORPS = 20.f;
 static const float HAUT_CORPS = 26.f;
@@ -10,15 +9,15 @@ static const float HAUT_BRAS = 24.f;
 static const float LARG_JAMBE = 10.f;
 static const float HAUT_JAMBE = 24.f;
 
-// Couleurs skin Minecraft fille
-static const sf::Color COUL_PEAU = sf::Color(255, 213, 170);  // peau
-static const sf::Color COUL_HAUT = sf::Color(219,  92, 143);  // t-shirt rose
-static const sf::Color COUL_JAMBES = sf::Color( 60,  90, 170);  // pantalon bleu
-static const sf::Color COUL_CHEVEUX = sf::Color(120,  60,  20);  // cheveux brun
-static const sf::Color COUL_YEUX = sf::Color( 50,  50, 200);  // yeux bleus
-static const sf::Color COUL_BOUCHE = sf::Color(180,  80,  80);  // bouche
-static const sf::Color COUL_BLESSE = sf::Color(220, 100,  50);  // blesse = orange
-static const sf::Color COUL_MORT = sf::Color(100, 100, 100);  // mort = gris
+//Couleurs peau
+static const sf::Color COUL_PEAU = sf::Color(255, 213, 170); //peau
+static const sf::Color COUL_HAUT = sf::Color(219,  92, 143); //t-shirt
+static const sf::Color COUL_JAMBES = sf::Color( 60,  90, 170); //pantalon bleu
+static const sf::Color COUL_CHEVEUX = sf::Color(120,  60,  20); //cheveux marron
+static const sf::Color COUL_YEUX = sf::Color( 50,  50, 200); //yeux bleus
+static const sf::Color COUL_BOUCHE = sf::Color(180,  80,  80); //bouche
+static const sf::Color COUL_BLESSE = sf::Color(220, 100,  50); //blesse = orange
+static const sf::Color COUL_MORT = sf::Color(100, 100, 100); //mort = gris
 
 Joueur::Joueur()
     : vitesse(0.f, 0.f),
@@ -29,35 +28,34 @@ Joueur::Joueur()
       frameAnim(0)
 {
     float baseY = POS_SOL;
-
-    // -- Tete : gros bloc carre --
+    //Tete
     tete.setSize({ TAILLE_TETE, TAILLE_TETE });
     tete.setFillColor(COUL_PEAU);
     tete.setOutlineColor(sf::Color(180, 140, 100));
     tete.setOutlineThickness(1.f);
 
-    // -- Cheveux : bande sur le haut de la tete --
+    //Cheveux
     cheveux.setSize({ TAILLE_TETE, 10.f });
     cheveux.setFillColor(COUL_CHEVEUX);
 
-    // -- Yeux : deux petits carres --
+    //Yeux
     oeilG.setSize({ 5.f, 5.f });
     oeilG.setFillColor(COUL_YEUX);
 
     oeilD.setSize({ 5.f, 5.f });
     oeilD.setFillColor(COUL_YEUX);
 
-    // -- Bouche : petit carre --
+    //Bouche
     bouche.setSize({ 8.f, 3.f });
     bouche.setFillColor(COUL_BOUCHE);
 
-    // -- Corps : bloc rectangle --
+    //Corps
     corps.setSize({ LARG_CORPS, HAUT_CORPS });
     corps.setFillColor(COUL_HAUT);
     corps.setOutlineColor(sf::Color(160, 50, 100));
     corps.setOutlineThickness(1.f);
 
-    // -- Bras : blocs fins de chaque cote --
+    //Bras
     brasDroit.setSize({ LARG_BRAS, HAUT_BRAS });
     brasDroit.setFillColor(COUL_HAUT);
     brasDroit.setOutlineColor(sf::Color(160, 50, 100));
@@ -68,7 +66,7 @@ Joueur::Joueur()
     brasGauche.setOutlineColor(sf::Color(160, 50, 100));
     brasGauche.setOutlineThickness(1.f);
 
-    // -- Jambes : deux blocs en bas --
+    //Jambes
     jambeD.setSize({LARG_JAMBE, HAUT_JAMBE });
     jambeD.setFillColor(COUL_JAMBES);
     jambeD.setOutlineColor(sf::Color(30, 50, 110));
@@ -82,39 +80,37 @@ Joueur::Joueur()
     majPositions(baseY);
 }
 
-// Recalcule toutes les positions en fonction de la base Y
 void Joueur::majPositions(float baseY) {
     float x = POS_X_JOUEUR;
 
-    // Hauteur totale = jambes + corps + tete
+    //Hauteur totale = jambes + corps+ tete
     float yJambes = baseY - HAUT_JAMBE;
     float yCorps = yJambes - HAUT_CORPS;
     float yBras = yCorps;
     float yTete = yCorps - TAILLE_TETE;
 
-    // Tete centree sur x
+    // Tete centrée
     tete.setPosition(x - TAILLE_TETE / 2.f, yTete);
     cheveux.setPosition(x - TAILLE_TETE / 2.f, yTete);
 
-    // Visage
+    //Visage
     oeilG.setPosition(x - TAILLE_TETE / 2.f + 5.f, yTete + 12.f);
     oeilD.setPosition(x - TAILLE_TETE / 2.f + 17.f, yTete + 12.f);
     bouche.setPosition(x - TAILLE_TETE / 2.f + 9.f, yTete + 21.f);
 
-    // Corps centre
+    //Corps centre
     corps.setPosition(x - LARG_CORPS / 2.f, yCorps);
 
-    // Bras de chaque cote du corps
+    //Bras de chaque cote du corps
     brasDroit.setPosition(x - LARG_CORPS / 2.f - LARG_BRAS - 1.f, yBras);
     brasGauche.setPosition(x + LARG_CORPS / 2.f + 1.f, yBras);
 
-    // Jambes cote a cote
+    //Jambes cote a cote
     jambeD.setPosition(x - LARG_JAMBE - 1.f, yJambes);
     jambeG.setPosition(x + 1.f, yJambes);
 }
 
 void Joueur::mettreAJour(float dt){
-    // Gravite
     if (!surSol) {
         vitesse.y += GRAVITE * dt;
     }
@@ -130,22 +126,22 @@ void Joueur::mettreAJour(float dt){
 
     majPositions(posYBase);
 
-    // Timer invincibilite apres choc
+    //Timer invincibilite apres choc
     if (timerInv > 0.f)
         timerInv -= dt;
 
-    // Animation des bras et jambes pendant la course
+    //Animation des bras et jambes pendant la course
     frameAnim = (frameAnim + 1) % 24;
     if (surSol && !accroupi) {
         float decalJ = (frameAnim < 12) ? -6.f : 6.f;
         float decalB = (frameAnim < 12) ?  5.f : -5.f;
 
-        // Jambes alternees
+        //Jambes alternees
         float yJambes = corps.getPosition().y + HAUT_CORPS;
         jambeD.setPosition(jambeD.getPosition().x, yJambes + (decalJ > 0 ? 0.f : 4.f));
         jambeG.setPosition(jambeG.getPosition().x, yJambes + (decalJ > 0 ? 4.f : 0.f));
 
-        // Bras alternes (oppose aux jambes)
+        //Bras alternes
         float yBras = corps.getPosition().y;
         brasDroit.setPosition(brasDroit.getPosition().x, yBras + (decalB > 0 ? 4.f : 0.f));
         brasGauche.setPosition(brasGauche.getPosition().x, yBras + (decalB > 0 ? 0.f : 4.f));
@@ -153,7 +149,6 @@ void Joueur::mettreAJour(float dt){
 }
 
 void Joueur::afficher(sf::RenderWindow& fen) const {
-    // Clignotement si invincible apres choc
     if (timerInv > 0.f && ((int)(timerInv * 8) % 2 == 0))
         return;
 
@@ -171,10 +166,10 @@ void Joueur::afficher(sf::RenderWindow& fen) const {
 
 sf::FloatRect Joueur::getBornes() const {
     if (accroupi) {
-        // Hitbox reduite = seulement le corps sans la tete
+        //Hitbox reduite->seulement le corps sans la tete
         return corps.getGlobalBounds();
     }
-    // Hitbox normale = corps + tete
+    //Hitbox normale->corps + tete
     sf::FloatRect r = corps.getGlobalBounds();
     sf::FloatRect t = tete.getGlobalBounds();
     float top = t.top;
@@ -221,19 +216,19 @@ void Joueur::sAccroupir(bool actif) {
     if (accroupi == actif)
      return;
     accroupi = actif;
-    // Quand accroupi : raccourcir les jambes
+    // Quand accroupi->raccourcir les jambes
     if (accroupi) {
         jambeD.setSize({ LARG_JAMBE, HAUT_JAMBE / 2.f });
         jambeG.setSize({ LARG_JAMBE, HAUT_JAMBE / 2.f });
         tete.setFillColor(sf::Color(0, 0, 0, 0));
-        tete.setOutlineColor(sf::Color(0, 0, 0, 0));     // contour invisible
+        tete.setOutlineColor(sf::Color(0, 0, 0, 0));
     cheveux.setFillColor(sf::Color(0, 0, 0, 0));     
     } else {
         jambeD.setSize({ LARG_JAMBE, HAUT_JAMBE });
         jambeG.setSize({ LARG_JAMBE, HAUT_JAMBE });
         tete.setFillColor(COUL_PEAU);
-         tete.setOutlineColor(sf::Color(180, 140, 100));  // contour visible
-    cheveux.setFillColor(COUL_CHEVEUX);              // visible
+         tete.setOutlineColor(sf::Color(180, 140, 100));
+    cheveux.setFillColor(COUL_CHEVEUX);            
     }
     majPositions(POS_SOL);
 }

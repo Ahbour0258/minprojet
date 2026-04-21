@@ -8,7 +8,7 @@
 #include <string>
 
 GestionnaireJeu::GestionnaireJeu()
-    : fenetre(sf::VideoMode(LARG_WIN, HAUT_WIN), "JEU CACHETTE"),
+     :fenetre(sf::VideoMode(LARG_WIN, HAUT_WIN), "JEU CACHETTE"),
       etatJeu(EtatJeu::Menu),
       chrono(TEMPS_JEU),
       timerSpawn(0.f),
@@ -18,10 +18,9 @@ GestionnaireJeu::GestionnaireJeu()
     fenetre.setFramerateLimit(60);
     std::srand(static_cast<unsigned>(std::time(nullptr)));
     bool policeOk = police.loadFromFile(POLICE_PATH);
-
     bool fondOk = texFond.loadFromFile(FOND_PATH);
 
-    if(fondOk) {
+    if(fondOk){
        
         fond.setTexture(texFond);
         float scaleX = (float)LARG_WIN /(float)texFond.getSize().x;
@@ -30,7 +29,6 @@ GestionnaireJeu::GestionnaireJeu()
         fond.setPosition(0.f, 0.f);
     }
 
-    
     menu = Menu(police);
     // Texte chrono
     txtChrono.setFont(police);
@@ -39,7 +37,7 @@ GestionnaireJeu::GestionnaireJeu()
     txtChrono.setPosition((float)LARG_WIN / 2.f - 70.f, 14.f);
     txtChrono.setStyle(sf::Text::Bold);
 
-    // Texte etat joueur
+    // Texte état joueur
     txtEtat.setFont(police);
     txtEtat.setCharacterSize(30);
     txtEtat.setFillColor(sf::Color(80, 255, 80));
@@ -61,7 +59,7 @@ GestionnaireJeu::~GestionnaireJeu(){}
 
 void GestionnaireJeu::lancer(){
     sf::Clock horloge;
-    while (fenetre.isOpen()) {
+    while (fenetre.isOpen()){
         float dt = horloge.restart().asSeconds();
         gererEvenements();
         if (etatJeu == EtatJeu::EnJeu)
@@ -71,7 +69,7 @@ void GestionnaireJeu::lancer(){
 }
 
 void GestionnaireJeu::reinitialiser(){
-    joueur = Joueur();
+    joueur= Joueur();
     obstacles.clear();
     chrono = TEMPS_JEU;
     timerSpawn = 0.f;
@@ -89,8 +87,11 @@ void GestionnaireJeu::gererEvenements() {
         if (etatJeu == EtatJeu::Menu) {
             menu.gererEntree(event);
             ChoixMenu c = menu.getChoix();
-            if (c == ChoixMenu::Jouer)   { menu.resetChoix(); reinitialiser(); }
-            if (c == ChoixMenu::Quitter) fenetre.close();
+            if (c == ChoixMenu::Jouer){ 
+                menu.resetChoix(); 
+                reinitialiser(); }
+            if (c == ChoixMenu::Quitter) 
+            fenetre.close();
         } else if (etatJeu == EtatJeu::EnJeu) {
             joueur.gererEntree(event);
         } else {
@@ -102,8 +103,7 @@ void GestionnaireJeu::gererEvenements() {
 }
 
 void GestionnaireJeu::mettreAJour(float dt) {
-    // Scrolling du fond
-    // Supprimer ces lignes
+  
 offsetFond -= VITESSE_OBS * dt;
 if (offsetFond <= -(float)LARG_WIN)
     offsetFond = 0.f;
@@ -213,7 +213,6 @@ void GestionnaireJeu::afficher() {
         joueur.afficher(fenetre);
         afficherHUD();
 
-        // Overlay sombre
         sf::RectangleShape overlay({ (float)LARG_WIN, (float)HAUT_WIN });
         overlay.setFillColor(sf::Color(0, 0, 0, 150));
         fenetre.draw(overlay);

@@ -4,6 +4,7 @@
 
 class Obstacle {
 public:
+            //Méthodes virtuells pures(classe abstraite)
     virtual ~Obstacle()=default;
     virtual void deplacer(float dt)=0;
     virtual void afficher(sf::RenderWindow& fen) const=0;
