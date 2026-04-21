@@ -10,8 +10,8 @@ static const float LARG_JAMBE = 10.f;
 static const float HAUT_JAMBE = 24.f;
 
 //Couleurs peau
-static const sf::Color COUL_PEAU = sf::Color(255, 213, 170); //peau
-static const sf::Color COUL_HAUT = sf::Color(219,  92, 143); //t-shirt
+static const sf::Color COUL_PEAU = sf::Color(255, 213, 170); //peau beige
+static const sf::Color COUL_HAUT = sf::Color(219,  92, 143); //t-shirt rose
 static const sf::Color COUL_JAMBES = sf::Color( 60,  90, 170); //pantalon bleu
 static const sf::Color COUL_CHEVEUX = sf::Color(120,  60,  20); //cheveux marron
 static const sf::Color COUL_YEUX = sf::Color( 50,  50, 200); //yeux bleus
