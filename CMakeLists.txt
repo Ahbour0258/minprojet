@@ -11,7 +11,7 @@ set(SFML_STATIC_LIBRARIES FALSE)
 find_package(SFML 2.5 COMPONENTS graphics window system audio REQUIRED)
 
 # Lister TOUS les fichiers sources
-add_executable(HideAndRun
+add_executable(JeuCachette
     src/main.cpp
     src/gameManager.cpp
     src/player.cpp
@@ -22,7 +22,7 @@ add_executable(HideAndRun
 )
 
 # Lier les bibliothèques SFML
-target_link_libraries(HideAndRun 
+target_link_libraries(JeuCachette
     sfml-graphics 
     sfml-window 
     sfml-system 

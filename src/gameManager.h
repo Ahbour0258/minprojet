@@ -1,5 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include <vector>
 #include <memory>
 #include "player.h"
@@ -19,11 +20,13 @@ private:
     sf::RenderWindow fenetre; //référence à la fenêtre principale du jeu. 
     sf::Font police;
     sf::Texture texFond;
-    sf::Sprite fond;
+    sf::Sprite fond1;
+    sf::Sprite fond2;
     sf::Text txtChrono;
     sf::Text txtEtat;
     sf::Text txtMessage;
     sf::RectangleShape sol;
+    sf::Music musique;
 
     Joueur joueur;
     std::vector<std::unique_ptr<Obstacle>> obstacles;

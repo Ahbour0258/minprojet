@@ -19,37 +19,44 @@ GestionnaireJeu::GestionnaireJeu()
     std::srand(static_cast<unsigned>(std::time(nullptr)));
     bool policeOk = police.loadFromFile(POLICE_PATH);
     bool fondOk = texFond.loadFromFile(FOND_PATH);
+    if (musique.openFromFile(MUSIQUE_PATH)) {
+        musique.setLoop(true);
+        musique.setVolume(50.f);
+          }
 
     if(fondOk){
-       
-        fond.setTexture(texFond);
-        float scaleX = (float)LARG_WIN /(float)texFond.getSize().x;
-        float scaleY = (float)HAUT_WIN / (float)texFond.getSize().y;
-        fond.setScale(scaleX, scaleY);
-        fond.setPosition(0.f, 0.f);
-    }
+    float scaleX = (float)LARG_WIN / (float)texFond.getSize().x;
+    float scaleY = (float)HAUT_WIN / (float)texFond.getSize().y;
 
+    fond1.setTexture(texFond);
+    fond1.setScale(scaleX, scaleY);
+    fond1.setPosition(0.f, 0.f);
+
+    fond2.setTexture(texFond);
+    fond2.setScale(scaleX, scaleY);
+    fond2.setPosition((float)LARG_WIN, 0.f);
+}
     menu = Menu(police);
-    // Texte chrono
+    //Texte chrono
     txtChrono.setFont(police);
     txtChrono.setCharacterSize(30);
     txtChrono.setFillColor(sf::Color(68, 8, 133));
     txtChrono.setPosition((float)LARG_WIN / 2.f - 70.f, 14.f);
     txtChrono.setStyle(sf::Text::Bold);
 
-    // Texte état joueur
+    //Texte état joueur
     txtEtat.setFont(police);
     txtEtat.setCharacterSize(30);
     txtEtat.setFillColor(sf::Color(80, 255, 80));
     txtEtat.setPosition(18.f, 14.f);
     txtEtat.setStyle(sf::Text::Bold);
 
-    // Texte message final
+    //Texte message final
     txtMessage.setFont(police);
     txtMessage.setCharacterSize(52);
     txtMessage.setStyle(sf::Text::Bold);
 
-    // Sol
+    //Sol
     sol.setSize({ (float)LARG_WIN, 18.f });
     sol.setPosition(0.f, POS_SOL);
     sol.setFillColor(sf::Color(40, 80, 20, 180));
@@ -62,8 +69,17 @@ void GestionnaireJeu::lancer(){
     while (fenetre.isOpen()){
         float dt = horloge.restart().asSeconds();
         gererEvenements();
-        if (etatJeu == EtatJeu::EnJeu)
+        if (etatJeu == EtatJeu::EnJeu){
+        if (musique.getStatus() != sf::Music::Playing) {
+                musique.play();
+            }
             mettreAJour(dt);
+        }
+        else {
+            if (musique.getStatus() == sf::Music::Playing) {
+                musique.stop();
+            }
+        }
         afficher();
     }
 }
@@ -104,10 +120,12 @@ void GestionnaireJeu::gererEvenements() {
 
 void GestionnaireJeu::mettreAJour(float dt) {
   
-offsetFond -= VITESSE_OBS * dt;
-if (offsetFond <= -(float)LARG_WIN)
-    offsetFond = 0.f;
-fond.setPosition(offsetFond, 0.f);
+  offsetFond -= VITESSE_FOND * dt;
+    fond1.setPosition(offsetFond, 0.f);
+    fond2.setPosition(offsetFond + (float)LARG_WIN, 0.f);
+    if (offsetFond <= -(float)LARG_WIN)
+        offsetFond = 0.f;
+
     joueur.mettreAJour(dt);
 
     chrono -= dt;
@@ -165,8 +183,8 @@ void GestionnaireJeu::verifierCollisions() {
 }
 
 void GestionnaireJeu::dessinerFond() {
-    fond.setPosition(0.f, 0.f);
-    fenetre.draw(fond);
+    fenetre.draw(fond1);
+    fenetre.draw(fond2);
 }
 
 void GestionnaireJeu::afficherHUD() {
@@ -179,15 +197,15 @@ void GestionnaireJeu::afficherHUD() {
         case EtatJoueur::Vivant:
             txtEtat.setString("Etat: VIVANT");
             txtEtat.setFillColor(sf::Color(80, 255, 80));
-            break;
+             break;
         case EtatJoueur::Blesse:
             txtEtat.setString("Etat: BLESSE");
             txtEtat.setFillColor(sf::Color(255, 165, 0));
-            break;
+             break;
         case EtatJoueur::Mort:
             txtEtat.setString("Etat: MORT");
             txtEtat.setFillColor(sf::Color::Red);
-            break;
+             break;
     }
     fenetre.draw(txtEtat);
 }
